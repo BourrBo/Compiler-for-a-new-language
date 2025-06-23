@@ -107,13 +107,13 @@ export class Lexer {
                 this.advance();
                 this.advance();
                 this.tokens.push({ type: TokenType.GREATER_EQUAL, value: ">=", line, column: col });
-            } else if (this.operators[char]) {
-                this.tokens.push({ type: this.operators[char], value: char, line, column: col });
-                this.advance();
             } else if (char === '/' && this.peekChar() === '/') {
                 while (this.currentChar() && this.currentChar() !== '\n') {
                     this.advance();
                 }
+            } else if (this.operators[char]) {
+                this.tokens.push({ type: this.operators[char], value: char, line, column: col });
+                this.advance();
             } else {
                 throw new Error(`Unexpected character '${char}' at line ${line}, column ${col}`);
             }
