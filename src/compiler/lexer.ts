@@ -84,39 +84,59 @@ export class Lexer {
             const line = this.line;
             const col = this.column;
 
-            if (/\d/.test(char)) {
-                const value = this.readNumber();
-                this.tokens.push({ type: TokenType.NUMBER, value, line, column: col });
-            } else if (/[a-zA-Z_]/.test(char)) {
-                const value = this.readIdentifier();
-                const type = this.keywords[value] || TokenType.IDENTIFIER;
-                this.tokens.push({ type, value, line, column: col });
-            } else if (char === '/' && this.peekChar() === '/') {
+            // Handle comments first to avoid confusion with division operator
+            if (char === '/' && this.peekChar() === '/') {
                 while (this.currentChar() && this.currentChar() !== '\n') {
                     this.advance();
                 }
-            } else if (char === '=' && this.peekChar() === '=') {
-                this.advance();
-                this.advance();
+                continue; // Skip the rest of the loop for this token
+            }
+            
+            // Handle two-character operators
+            if (char === '=' && this.peekChar() === '=') {
+                this.advance(); this.advance();
                 this.tokens.push({ type: TokenType.EQUAL, value: "==", line, column: col });
-            } else if (char === '!' && this.peekChar() === '=') {
-                this.advance();
-                this.advance();
+                continue;
+            }
+            if (char === '!' && this.peekChar() === '=') {
+                this.advance(); this.advance();
                 this.tokens.push({ type: TokenType.NOT_EQUAL, value: "!=", line, column: col });
-            } else if (char === '<' && this.peekChar() === '=') {
-                this.advance();
-                this.advance();
+                continue;
+            }
+            if (char === '<' && this.peekChar() === '=') {
+                this.advance(); this.advance();
                 this.tokens.push({ type: TokenType.LESS_EQUAL, value: "<=", line, column: col });
-            } else if (char === '>' && this.peekChar() === '=') {
-                this.advance();
-                this.advance();
+                continue;
+            }
+            if (char === '>' && this.peekChar() === '=') {
+                this.advance(); this.advance();
                 this.tokens.push({ type: TokenType.GREATER_EQUAL, value: ">=", line, column: col });
-            } else if (this.operators[char]) {
+                continue;
+            }
+
+            // Handle single-character operators
+            if (this.operators[char]) {
                 this.tokens.push({ type: this.operators[char], value: char, line, column: col });
                 this.advance();
-            } else {
-                throw new Error(`Unexpected character '${char}' at line ${line}, column ${col}`);
+                continue;
             }
+            
+            // Handle numbers
+            if (/\d/.test(char)) {
+                const value = this.readNumber();
+                this.tokens.push({ type: TokenType.NUMBER, value, line, column: col });
+                continue;
+            }
+            
+            // Handle identifiers and keywords
+            if (/[a-zA-Z_]/.test(char)) {
+                const value = this.readIdentifier();
+                const type = this.keywords[value] || TokenType.IDENTIFIER;
+                this.tokens.push({ type, value, line, column: col });
+                continue;
+            }
+            
+            throw new Error(`Unexpected character '${char}' at line ${line}, column ${col}`);
         }
         this.tokens.push({ type: TokenType.EOF, value: "", line: this.line, column: this.column });
         return this.tokens;

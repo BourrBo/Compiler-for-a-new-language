@@ -4,6 +4,7 @@ import { SemanticAnalyzer } from './semantic';
 import { IRGenerator } from './ir';
 import { Optimizer } from './optimizer';
 import { AssemblyGenerator } from './codegen';
+import { Interpreter } from './interpreter';
 import type { Token, Program, SemanticReport, IRInstruction } from './types';
 
 export interface CompilationResult {
@@ -14,6 +15,7 @@ export interface CompilationResult {
   optimizedIr: IRInstruction[];
   assembly: string;
   error: string | null;
+  executionOutput: number | string;
 }
 
 export function compile(sourceCode: string): CompilationResult {
@@ -25,6 +27,7 @@ export function compile(sourceCode: string): CompilationResult {
     optimizedIr: [],
     assembly: '',
     error: null,
+    executionOutput: ''
   };
 
   try {
@@ -40,6 +43,7 @@ export function compile(sourceCode: string): CompilationResult {
     const semanticAnalyzer = new SemanticAnalyzer();
     result.semanticReport = semanticAnalyzer.analyze(result.ast);
     if (result.semanticReport.errors.length > 0) {
+      result.error = "Semantic errors found.";
       return result; // Stop if there are semantic errors
     }
 
@@ -54,6 +58,11 @@ export function compile(sourceCode: string): CompilationResult {
     // 6. Code Generation
     const codeGenerator = new AssemblyGenerator();
     result.assembly = codeGenerator.generate(result.ast, result.optimizedIr);
+
+    // 7. Interpretation
+    const interpreter = new Interpreter(result.ast, result.optimizedIr);
+    result.executionOutput = interpreter.run();
+
 
   } catch (e: any) {
     result.error = e.message;

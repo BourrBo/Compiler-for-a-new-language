@@ -30,7 +30,7 @@ int main() {
 export function CompilerIDE() {
   const [code, setCode] = useState<string>(sampleProgram);
   const [isCompiling, setIsCompiling] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<string>("assembly");
+  const [activeTab, setActiveTab] = useState<string>("execution");
   const [compilationResult, setCompilationResult] = useState<CompilationResult | null>(null);
 
   const handleCompile = () => {
@@ -38,10 +38,10 @@ export function CompilerIDE() {
     try {
       const result = compile(code);
       setCompilationResult(result);
-      if (result.error) {
+      if (result.error || result.semanticReport.errors.length > 0) {
         setActiveTab("error");
       } else {
-        setActiveTab("assembly");
+        setActiveTab("execution");
       }
     } catch (e: any) {
       setCompilationResult({
@@ -52,6 +52,7 @@ export function CompilerIDE() {
         optimizedIr: [],
         assembly: "",
         error: e.message,
+        executionOutput: `Client-side error: ${e.message}`,
       });
       setActiveTab("error");
     } finally {
@@ -85,17 +86,44 @@ export function CompilerIDE() {
     if (!error && semanticErrors.length === 0) {
       return <p className="text-muted-foreground">No errors found. Great job!</p>;
     }
+    const allErrors = [error, ...semanticErrors].filter(Boolean).join('\n');
     return (
       <Alert variant="destructive" className="max-h-[40vh] overflow-auto">
         <Terminal className="h-4 w-4" />
         <AlertTitle>Compilation Error</AlertTitle>
         <AlertDescription>
-          <pre className="font-code whitespace-pre-wrap">
-            {error}
-            {semanticErrors.map((e, i) => <div key={i}>{e}</div>)}
-          </pre>
+          <pre className="font-code whitespace-pre-wrap">{allErrors}</pre>
         </AlertDescription>
       </Alert>
+    );
+  };
+
+  const renderExecutionOutput = (output: number | string | undefined | null) => {
+    if (output === null || output === undefined || output === '') {
+      return <p className="text-muted-foreground">Run the compiler to see execution output.</p>;
+    }
+    
+    const isError = typeof output === 'string' && output.startsWith('Execution Error:');
+    
+    if (isError) {
+      return (
+        <Alert variant="destructive" className="max-h-[40vh] overflow-auto">
+          <Terminal className="h-4 w-4" />
+          <AlertTitle>Execution Error</AlertTitle>
+          <AlertDescription>
+            <pre className="font-code whitespace-pre-wrap">{output.replace('Execution Error: ', '')}</pre>
+          </AlertDescription>
+        </Alert>
+      );
+    }
+
+    return (
+      <div className="font-code text-lg bg-muted rounded-md p-4 overflow-auto max-h-[40vh] h-full flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground mb-2">Program returned</p>
+          <p className="text-5xl font-bold">{output}</p>
+        </div>
+      </div>
     );
   };
 
@@ -126,22 +154,22 @@ export function CompilerIDE() {
         <Card className="flex-1 flex flex-col shadow-lg">
           <CardContent className="p-4 flex-1">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-              <TabsList>
-                <TabsTrigger value="assembly">Code Generation</TabsTrigger>
-                <TabsTrigger value="tokens">Lexical Analysis</TabsTrigger>
-                <TabsTrigger value="ast">Syntactic Analysis</TabsTrigger>
-                <TabsTrigger value="semantic">Semantic Analysis</TabsTrigger>
-                <TabsTrigger value="ir">IR Generation</TabsTrigger>
-                <TabsTrigger value="optimizedIr">Optimization</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-7">
+                <TabsTrigger value="execution">Output</TabsTrigger>
+                <TabsTrigger value="assembly">Assembly</TabsTrigger>
+                <TabsTrigger value="tokens">Tokens</TabsTrigger>
+                <TabsTrigger value="ast">AST</TabsTrigger>
+                <TabsTrigger value="semantic">Semantics</TabsTrigger>
+                <TabsTrigger value="ir">IR</TabsTrigger>
                 <TabsTrigger value="error">Errors</TabsTrigger>
               </TabsList>
               <div className="flex-1 mt-4 overflow-hidden">
+                <TabsContent value="execution" className="h-full">{renderExecutionOutput(compilationResult?.executionOutput)}</TabsContent>
+                <TabsContent value="assembly" className="h-full">{renderAssembly(compilationResult?.assembly ?? '')}</TabsContent>
                 <TabsContent value="tokens" className="h-full">{renderContent(compilationResult?.tokens)}</TabsContent>
                 <TabsContent value="ast" className="h-full">{renderContent(compilationResult?.ast)}</TabsContent>
                 <TabsContent value="semantic" className="h-full">{renderContent(compilationResult?.semanticReport)}</TabsContent>
                 <TabsContent value="ir" className="h-full">{renderContent(compilationResult?.ir)}</TabsContent>
-                <TabsContent value="optimizedIr" className="h-full">{renderContent(compilationResult?.optimizedIr)}</TabsContent>
-                <TabsContent value="assembly" className="h-full">{renderAssembly(compilationResult?.assembly ?? '')}</TabsContent>
                 <TabsContent value="error" className="h-full">{renderError(compilationResult?.error ?? null, compilationResult?.semanticReport?.errors ?? [])}</TabsContent>
               </div>
             </Tabs>
