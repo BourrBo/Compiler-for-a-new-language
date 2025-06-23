@@ -91,6 +91,10 @@ export class Lexer {
                 const value = this.readIdentifier();
                 const type = this.keywords[value] || TokenType.IDENTIFIER;
                 this.tokens.push({ type, value, line, column: col });
+            } else if (char === '/' && this.peekChar() === '/') {
+                while (this.currentChar() && this.currentChar() !== '\n') {
+                    this.advance();
+                }
             } else if (char === '=' && this.peekChar() === '=') {
                 this.advance();
                 this.advance();
@@ -107,10 +111,6 @@ export class Lexer {
                 this.advance();
                 this.advance();
                 this.tokens.push({ type: TokenType.GREATER_EQUAL, value: ">=", line, column: col });
-            } else if (char === '/' && this.peekChar() === '/') {
-                while (this.currentChar() && this.currentChar() !== '\n') {
-                    this.advance();
-                }
             } else if (this.operators[char]) {
                 this.tokens.push({ type: this.operators[char], value: char, line, column: col });
                 this.advance();
