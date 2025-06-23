@@ -1,13 +1,15 @@
 import type {
     Program, FunctionNode, Block, Statement, Expression, VarDeclaration, Assignment,
     Identifier, FunctionCall, ASTNode, ReturnStatement, IfStatement, WhileStatement,
-    BinaryOp, UnaryOp, NumberLiteral, ExpressionStatement, Parameter, IRInstruction
+    BinaryOp, UnaryOp, NumberLiteral, ExpressionStatement, Parameter, IRInstruction,
+    PrintStatement, StringLiteral
 } from './types';
 
 export class IRGenerator {
     private ir: IRInstruction[] = [];
     private tempCounter = 0;
     private labelCounter = 0;
+    private stringLiterals = new Map<string, string>();
 
     private newTemp(): string {
         return `t${this.tempCounter++}`;
@@ -22,6 +24,7 @@ export class IRGenerator {
         for (const func of program.functions) {
             this.visitFunction(func);
         }
+        // Could add string data section here if targeting assembly more directly
         return this.ir;
     }
 
@@ -57,8 +60,14 @@ export class IRGenerator {
             case 'IfStatement': this.visitIfStatement(node); break;
             case 'WhileStatement': this.visitWhileStatement(node); break;
             case 'ExpressionStatement': this.visitExpression(node.expression); break;
+            case 'PrintStatement': this.visitPrintStatement(node); break;
             case 'Block': this.visitBlock(node); break;
         }
+    }
+
+    private visitPrintStatement(node: PrintStatement) {
+        const valueReg = this.visitExpression(node.expression);
+        this.emit({ op: 'PRINT', arg1: valueReg });
     }
 
     private visitVarDeclaration(node: VarDeclaration) {
@@ -118,6 +127,7 @@ export class IRGenerator {
     private visitExpression(node: Expression): string {
         switch (node.nodeType) {
             case 'Number': return this.visitNumber(node);
+            case 'StringLiteral': return this.visitStringLiteral(node);
             case 'Identifier': return this.visitIdentifier(node);
             case 'BinaryOp': return this.visitBinaryOp(node);
             case 'UnaryOp': return this.visitUnaryOp(node);
@@ -126,6 +136,12 @@ export class IRGenerator {
     }
 
     private visitNumber(node: NumberLiteral): string {
+        const temp = this.newTemp();
+        this.emit({ op: 'LOAD', dest: temp, arg1: node.value });
+        return temp;
+    }
+    
+    private visitStringLiteral(node: StringLiteral): string {
         const temp = this.newTemp();
         this.emit({ op: 'LOAD', dest: temp, arg1: node.value });
         return temp;
@@ -142,8 +158,16 @@ export class IRGenerator {
         const rightReg = this.visitExpression(node.right);
         const destReg = this.newTemp();
         
+        // Basic type checking for string concatenation
+        if (node.operator === '+') {
+            // Simplified: This IR doesn't have type info. A real implementation would.
+            // We assume if either operand is a string, it's concatenation.
+            this.emit({ op: 'ADD', dest: destReg, arg1: leftReg, arg2: rightReg });
+            return destReg;
+        }
+
         const opMap = {
-            '+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV', '%': 'MOD',
+            '-': 'SUB', '*': 'MUL', '/': 'DIV', '%': 'MOD',
             '==': 'CMP_EQ', '!=': 'CMP_NE', '<': 'CMP_LT', '>': 'CMP_GT', '<=': 'CMP_LE', '>=': 'CMP_GE'
         };
 

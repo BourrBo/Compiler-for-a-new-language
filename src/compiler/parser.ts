@@ -1,7 +1,7 @@
 import { TokenType, Token } from "./types";
 import type { 
     Program, FunctionNode, Parameter, Block, Statement, VarDeclaration, Assignment, ReturnStatement, IfStatement, WhileStatement,
-    ExpressionStatement, Expression, BinaryOp, UnaryOp, NumberLiteral, Identifier, FunctionCall
+    ExpressionStatement, Expression, BinaryOp, UnaryOp, NumberLiteral, Identifier, FunctionCall, PrintStatement, StringLiteral
 } from "./types";
 
 export class Parser {
@@ -83,6 +83,7 @@ export class Parser {
         if (token.type === TokenType.IF) return this.parseIfStatement();
         if (token.type === TokenType.WHILE) return this.parseWhileStatement();
         if (token.type === TokenType.LBRACE) return this.parseBlock();
+        if (token.type === TokenType.PRINT) return this.parsePrintStatement();
 
         // Distinguish between assignment and expression statement
         if (token.type === TokenType.IDENTIFIER && this.peekToken().type === TokenType.ASSIGN) {
@@ -92,6 +93,15 @@ export class Parser {
         const expression = this.parseExpression();
         this.consumeOptionalSemicolon();
         return { nodeType: 'ExpressionStatement', expression };
+    }
+
+    private parsePrintStatement(): PrintStatement {
+        this.expect(TokenType.PRINT);
+        this.expect(TokenType.LPAREN);
+        const expression = this.parseExpression();
+        this.expect(TokenType.RPAREN);
+        this.consumeOptionalSemicolon();
+        return { nodeType: 'PrintStatement', expression };
     }
 
     private parseVarDeclaration(): VarDeclaration {
@@ -199,6 +209,10 @@ export class Parser {
         if (token.type === TokenType.NUMBER) {
             this.advance();
             return { nodeType: 'Number', value: parseInt(token.value, 10) };
+        }
+        if (token.type === TokenType.STRING) {
+            this.advance();
+            return { nodeType: 'StringLiteral', value: token.value };
         }
         if (token.type === TokenType.IDENTIFIER) {
             const name = token.value;

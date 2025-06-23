@@ -13,6 +13,7 @@ export class Lexer {
         'if': TokenType.IF,
         'else': TokenType.ELSE,
         'while': TokenType.WHILE,
+        'print': TokenType.PRINT,
     };
 
     private readonly operators: { [key: string]: TokenType } = {
@@ -76,6 +77,20 @@ export class Lexer {
         return ident;
     }
 
+    private readString(): string {
+        let str = "";
+        this.advance(); // consume opening quote
+        while(this.currentChar() && this.currentChar() !== '"') {
+            str += this.currentChar();
+            this.advance();
+        }
+        if (!this.currentChar()) {
+            throw new Error(`Unterminated string at line ${this.line}, column ${this.column}`);
+        }
+        this.advance(); // consume closing quote
+        return str;
+    }
+
     public tokenize(): Token[] {
         while (this.currentChar()) {
             this.skipWhitespace();
@@ -94,6 +109,13 @@ export class Lexer {
                 continue; // Skip the rest of the loop for this token
             }
             
+            // Handle strings
+            if (char === '"') {
+                const value = this.readString();
+                this.tokens.push({ type: TokenType.STRING, value, line, column: col });
+                continue;
+            }
+
             // Handle two-character operators
             if (char === '=' && this.peekChar() === '=') {
                 this.advance(); this.advance();

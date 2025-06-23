@@ -96,14 +96,23 @@ export class AssemblyGenerator {
                 this.getVarOffset(dest as string); // ensures space is tracked
                 break;
             case 'STORE':
+                // Note: Storing strings is not implemented in this simple codegen
                 this.emit(`    mov ${arg1}, ${destOffset}`);
                 break;
             case 'LOAD':
+                 // Note: Loading strings is not implemented
                 if (typeof arg1 === 'number') {
                     this.emit(`    mov $${arg1}, ${destOffset}`);
-                } else {
+                } else if (typeof arg1 === 'string' && !isNaN(parseInt(arg1))) {
                     this.emit(`    mov ${this.getVarOffset(arg1 as string)}(%rbp), %rax`);
                     this.emit(`    mov %rax, ${destOffset}`);
+                } else {
+                    // It's a variable name or string literal - can't handle strings here
+                    const offset = this.getVarOffset(arg1 as string);
+                     if (offset) {
+                        this.emit(`    mov ${offset}(%rbp), %rax`);
+                        this.emit(`    mov %rax, ${destOffset}`);
+                    }
                 }
                 break;
             case 'ADD':
@@ -157,6 +166,10 @@ export class AssemblyGenerator {
                 this.emit(`    mov %rax, ${destOffset}`);
                 break;
             
+            case 'PRINT':
+                // Printing is handled by the interpreter, not implemented in assembly codegen.
+                break;
+
             case 'PARAM':
                 // Simplified: this logic should be more complex, moving params to registers
                 // For now, we assume parameters are handled correctly before the call.

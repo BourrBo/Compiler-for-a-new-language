@@ -27,7 +27,11 @@ let x = 5 // This is an inline comment`}
 
             <section>
                 <h3 className="text-lg font-semibold">Data Types</h3>
-                <p>The language is dynamically typed. Currently, only numbers are implicitly handled, but you don't need to declare a type.</p>
+                <p>The language is dynamically typed and supports numbers and strings.</p>
+                 <CodeBlock>
+{`let myNumber = 42
+let myString = "Hello, World!"`}
+                </CodeBlock>
             </section>
             
             <Separator />
@@ -62,6 +66,20 @@ func main() {
 
             <Separator />
 
+             <section>
+                <h3 className="text-lg font-semibold">Printing Output</h3>
+                <p>Use the built-in <code>print()</code> function to output values to the screen. It can accept numbers or strings.</p>
+                <CodeBlock>
+{`func main() {
+    print("Hello from EasyScript!")
+    let result = 10 * 2
+    print(result)
+}`}
+                </CodeBlock>
+            </section>
+
+            <Separator />
+
             <section>
                 <h3 className="text-lg font-semibold">Control Flow</h3>
                 <h4 className="font-medium mt-2">If-Else Statement:</h4>
@@ -88,7 +106,7 @@ return i // returns 5`}
             <section>
                 <h3 className="text-lg font-semibold">Operators</h3>
                 <ul className="list-disc list-inside space-y-1">
-                    <li>Arithmetic: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code> (Modulo)</li>
+                    <li>Arithmetic: <code>+</code> (also for string concatenation), <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code> (Modulo)</li>
                     <li>Comparison: <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></li>
                     <li>Assignment: <code>=</code></li>
                 </ul>

@@ -1,7 +1,7 @@
 import type {
     Program, FunctionNode, Block, Statement, Expression, VarDeclaration, Assignment,
     Identifier, FunctionCall, ASTNode, ReturnStatement, IfStatement, WhileStatement,
-    BinaryOp, UnaryOp, NumberLiteral, ExpressionStatement, Parameter
+    BinaryOp, UnaryOp, NumberLiteral, ExpressionStatement, Parameter, PrintStatement, StringLiteral
 } from './types';
 
 type SymbolType = 'variable' | 'function';
@@ -101,8 +101,13 @@ export class SemanticAnalyzer {
             case 'IfStatement': return this.visitIfStatement(node);
             case 'WhileStatement': return this.visitWhileStatement(node);
             case 'ExpressionStatement': return this.visitExpressionStatement(node);
+            case 'PrintStatement': return this.visitPrintStatement(node);
             case 'Block': return this.visitBlock(node);
         }
+    }
+    
+    private visitPrintStatement(node: PrintStatement) {
+        this.visitExpression(node.expression);
     }
 
     private visitVarDeclaration(node: VarDeclaration) {
@@ -157,6 +162,7 @@ export class SemanticAnalyzer {
             case 'BinaryOp': return this.visitBinaryOp(node);
             case 'UnaryOp': return this.visitUnaryOp(node);
             case 'Number': return; // No check needed
+            case 'StringLiteral': return; // No check needed
         }
     }
 

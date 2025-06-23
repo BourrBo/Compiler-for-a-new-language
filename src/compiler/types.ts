@@ -15,6 +15,7 @@ export enum TokenType {
     IF = "if",
     ELSE = "else",
     WHILE = "while",
+    PRINT = "print",
     
     // Operators
     PLUS = "+",
@@ -59,7 +60,8 @@ export type ASTNode = Program | FunctionNode | Parameter | Block | Statement | E
 export type NodeTypes = 
     'Program' | 'Function' | 'Parameter' | 'Block' | 
     'VarDeclaration' | 'Assignment' | 'ReturnStatement' | 'IfStatement' | 'WhileStatement' | 'ExpressionStatement' |
-    'BinaryOp' | 'UnaryOp' | 'Number' | 'Identifier' | 'FunctionCall';
+    'PrintStatement' |
+    'BinaryOp' | 'UnaryOp' | 'Number' | 'Identifier' | 'StringLiteral' | 'FunctionCall';
 
 interface BaseNode {
     nodeType: NodeTypes;
@@ -87,7 +89,7 @@ export interface Block extends BaseNode {
     statements: Statement[];
 }
 
-export type Statement = VarDeclaration | Assignment | ReturnStatement | IfStatement | WhileStatement | ExpressionStatement | Block;
+export type Statement = VarDeclaration | Assignment | ReturnStatement | IfStatement | WhileStatement | ExpressionStatement | Block | PrintStatement;
 
 export interface VarDeclaration extends BaseNode {
     nodeType: 'VarDeclaration';
@@ -104,6 +106,11 @@ export interface Assignment extends BaseNode {
 export interface ReturnStatement extends BaseNode {
     nodeType: 'ReturnStatement';
     value?: Expression;
+}
+
+export interface PrintStatement extends BaseNode {
+    nodeType: 'PrintStatement';
+    expression: Expression;
 }
 
 export interface IfStatement extends BaseNode {
@@ -124,7 +131,7 @@ export interface ExpressionStatement extends BaseNode {
     expression: Expression;
 }
 
-export type Expression = BinaryOp | UnaryOp | NumberLiteral | Identifier | FunctionCall;
+export type Expression = BinaryOp | UnaryOp | NumberLiteral | StringLiteral | Identifier | FunctionCall;
 
 export interface BinaryOp extends BaseNode {
     nodeType: 'BinaryOp';
@@ -142,6 +149,11 @@ export interface UnaryOp extends BaseNode {
 export interface NumberLiteral extends BaseNode {
     nodeType: 'Number';
     value: number;
+}
+
+export interface StringLiteral extends BaseNode {
+    nodeType: 'StringLiteral';
+    value: string;
 }
 
 export interface Identifier extends BaseNode {
@@ -174,7 +186,8 @@ export type IROp =
     'CMP_EQ' | 'CMP_NE' | 'CMP_LT' | 'CMP_GT' | 'CMP_LE' | 'CMP_GE' |
     'LABEL' | 'JUMP' | 'JUMP_IF_ZERO' |
     'CALL' | 'PARAM' | 'RETURN' |
-    'PROLOGUE' | 'EPILOGUE';
+    'PROLOGUE' | 'EPILOGUE' |
+    'PRINT';
 
 export type IROperand = string | number;
 

@@ -12,7 +12,7 @@ import { Terminal } from "lucide-react";
 import { SyntaxGuide } from "./syntax-guide";
 
 const sampleProgram = `// A user-friendly language for modern compilers!
-// Keywords: func, let, return, if, else, while
+// Keywords: func, let, return, if, else, while, print
 
 // Function to compute the greatest common divisor
 func gcd(a, b) {
@@ -27,7 +27,9 @@ func gcd(a, b) {
 // Main entry point of the program
 func main() {
     let result = gcd(48, 18)
-    return result // Expected output: 6
+    print("The GCD of 48 and 18 is:")
+    print(result) // Expected output: 6
+    return 0 // The return value is ignored if print() is used
 }
 `;
 
@@ -119,6 +121,15 @@ export function CompilerIDE() {
           </AlertDescription>
         </Alert>
       );
+    }
+
+    // If output is a string, it's from print(). Otherwise, it's a return value.
+    if (typeof output === 'string') {
+      return (
+        <pre className="font-code text-sm bg-muted rounded-md p-4 overflow-auto max-h-[40vh] h-full text-left">
+          {output}
+        </pre>
+      )
     }
 
     return (
