@@ -7,7 +7,8 @@ export class Lexer {
     private tokens: Token[] = [];
 
     private readonly keywords: { [key: string]: TokenType } = {
-        'int': TokenType.INT,
+        'let': TokenType.LET,
+        'func': TokenType.FUNC,
         'return': TokenType.RETURN,
         'if': TokenType.IF,
         'else': TokenType.ELSE,
@@ -19,6 +20,7 @@ export class Lexer {
         '-': TokenType.MINUS,
         '*': TokenType.MULTIPLY,
         '/': TokenType.DIVIDE,
+        '%': TokenType.MODULO,
         '=': TokenType.ASSIGN,
         '<': TokenType.LESS_THAN,
         '>': TokenType.GREATER_THAN,

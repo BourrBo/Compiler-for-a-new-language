@@ -10,8 +10,8 @@ const CodeBlock = ({ children }: { children: React.ReactNode }) => (
 export function SyntaxGuide() {
   return (
     <div className="h-full overflow-auto pr-4">
-        <h2 className="text-2xl font-bold mb-2">SimpleC Language Syntax Guide</h2>
-        <p className="text-muted-foreground mb-4">A brief overview of the language features.</p>
+        <h2 className="text-2xl font-bold mb-2">EasyScript Language Syntax Guide</h2>
+        <p className="text-muted-foreground mb-4">A brief overview of this user-friendly language.</p>
         
         <div className="space-y-6">
             <section>
@@ -19,7 +19,7 @@ export function SyntaxGuide() {
                 <p>Single-line comments start with <code>//</code>.</p>
                 <CodeBlock>
 {`// This is a comment
-int x = 5; // This is an inline comment`}
+let x = 5 // This is an inline comment`}
                 </CodeBlock>
             </section>
 
@@ -27,36 +27,35 @@ int x = 5; // This is an inline comment`}
 
             <section>
                 <h3 className="text-lg font-semibold">Data Types</h3>
-                <p>The only supported data type is <code>int</code> for 32-bit signed integers.</p>
+                <p>The language is dynamically typed. Currently, only numbers are implicitly handled, but you don't need to declare a type.</p>
             </section>
             
             <Separator />
 
             <section>
                 <h3 className="text-lg font-semibold">Variables</h3>
-                <p>Variables must be declared with the <code>int</code> type before use.</p>
+                <p>Variables are declared using the <code>let</code> keyword. Semicolons are optional.</p>
                 <h4 className="font-medium mt-2">Declaration:</h4>
-                <CodeBlock>int a;</CodeBlock>
+                <CodeBlock>let a</CodeBlock>
                 <h4 className="font-medium mt-2">Declaration with Initialization:</h4>
-                <CodeBlock>int b = 10;</CodeBlock>
+                <CodeBlock>let b = 10</CodeBlock>
                 <h4 className="font-medium mt-2">Assignment:</h4>
-                <CodeBlock>a = b + 5;</CodeBlock>
+                <CodeBlock>a = b + 5</CodeBlock>
             </section>
 
             <Separator />
 
             <section>
                 <h3 className="text-lg font-semibold">Functions</h3>
-                <p>Functions are defined with a return type, name, and parameters. The entry point of the program must be a function named <code>main</code>.</p>
+                <p>Functions are defined with the <code>func</code> keyword. The entry point of the program must be a function named <code>main</code>.</p>
                 <CodeBlock>
-{`int add(int x, int y) {
-    return x + y;
+{`func add(x, y) {
+    return x + y
 }
 
-int main() {
-    int sum;
-    sum = add(7, 3); // sum will be 10
-    return sum;
+func main() {
+    let sum = add(7, 3) // sum will be 10
+    return sum
 }`}
                 </CodeBlock>
             </section>
@@ -69,18 +68,18 @@ int main() {
                 <p>The <code>else</code> block is optional.</p>
                 <CodeBlock>
 {`if (a > b) {
-    return a;
+    return a
 } else {
-    return b;
+    return b
 }`}
                 </CodeBlock>
                 <h4 className="font-medium mt-2">While Loop:</h4>
                 <CodeBlock>
-{`int i = 0;
+{`let i = 0
 while (i < 5) {
-    i = i + 1;
+    i = i + 1
 }
-return i; // returns 5`}
+return i // returns 5`}
                 </CodeBlock>
             </section>
 
@@ -89,7 +88,7 @@ return i; // returns 5`}
             <section>
                 <h3 className="text-lg font-semibold">Operators</h3>
                 <ul className="list-disc list-inside space-y-1">
-                    <li>Arithmetic: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code></li>
+                    <li>Arithmetic: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code> (Modulo)</li>
                     <li>Comparison: <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></li>
                     <li>Assignment: <code>=</code></li>
                 </ul>

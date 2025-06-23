@@ -7,8 +7,7 @@ import type {
 type SymbolType = 'variable' | 'function';
 interface Symbol {
     type: SymbolType;
-    dataType: string;
-    paramTypes?: string[];
+    paramCount?: number;
 }
 
 class SymbolTable {
@@ -59,8 +58,7 @@ export class SemanticAnalyzer {
         for (const func of node.functions) {
             const error = this.symbolTable.declare(func.name, {
                 type: 'function',
-                dataType: func.returnType,
-                paramTypes: func.params.map(p => p.paramType),
+                paramCount: func.params.length,
             });
             if (error) this.error(error);
         }
@@ -83,7 +81,7 @@ export class SemanticAnalyzer {
     }
 
     private visitParameter(node: Parameter) {
-        const error = this.symbolTable.declare(node.name, { type: 'variable', dataType: node.paramType });
+        const error = this.symbolTable.declare(node.name, { type: 'variable' });
         if (error) this.error(error);
     }
 
@@ -111,7 +109,7 @@ export class SemanticAnalyzer {
         if (node.initializer) {
             this.visitExpression(node.initializer);
         }
-        const error = this.symbolTable.declare(node.name, { type: 'variable', dataType: node.varType });
+        const error = this.symbolTable.declare(node.name, { type: 'variable' });
         if(error) this.error(error);
     }
 
@@ -181,8 +179,8 @@ export class SemanticAnalyzer {
             this.error(`'${node.name}' is not a function.`);
             return;
         }
-        if (symbol.paramTypes!.length !== node.args.length) {
-            this.error(`Function '${node.name}' expects ${symbol.paramTypes!.length} arguments, but got ${node.args.length}.`);
+        if (symbol.paramCount !== node.args.length) {
+            this.error(`Function '${node.name}' expects ${symbol.paramCount} arguments, but got ${node.args.length}.`);
         }
         for(const arg of node.args) {
             this.visitExpression(arg);

@@ -9,7 +9,8 @@ export enum TokenType {
     STRING = "STRING",
     
     // Keywords
-    INT = "int",
+    LET = "let",
+    FUNC = "func",
     RETURN = "return",
     IF = "if",
     ELSE = "else",
@@ -20,6 +21,7 @@ export enum TokenType {
     MINUS = "-",
     MULTIPLY = "*",
     DIVIDE = "/",
+    MODULO = "%",
     ASSIGN = "=",
     EQUAL = "==",
     NOT_EQUAL = "!=",
@@ -72,14 +74,12 @@ export interface FunctionNode extends BaseNode {
     nodeType: 'Function';
     name: string;
     params: Parameter[];
-    returnType: string;
     body: Block;
 }
 
 export interface Parameter extends BaseNode {
     nodeType: 'Parameter';
     name: string;
-    paramType: string;
 }
 
 export interface Block extends BaseNode {
@@ -92,7 +92,6 @@ export type Statement = VarDeclaration | Assignment | ReturnStatement | IfStatem
 export interface VarDeclaration extends BaseNode {
     nodeType: 'VarDeclaration';
     name: string;
-    varType: string;
     initializer?: Expression;
 }
 
@@ -171,7 +170,7 @@ export interface SemanticReport {
 
 export type IROp = 
     'ALLOC' | 'STORE' | 'LOAD' | 
-    'ADD' | 'SUB' | 'MUL' | 'DIV' |
+    'ADD' | 'SUB' | 'MUL' | 'DIV' | 'MOD' |
     'CMP_EQ' | 'CMP_NE' | 'CMP_LT' | 'CMP_GT' | 'CMP_LE' | 'CMP_GE' |
     'LABEL' | 'JUMP' | 'JUMP_IF_ZERO' |
     'CALL' | 'PARAM' | 'RETURN' |

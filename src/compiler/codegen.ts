@@ -40,7 +40,8 @@ export class AssemblyGenerator {
             this.varMap.clear();
 
             // Find start of function in IR
-            while(irIndex < ir.length && (ir[irIndex].op !== 'PROLOGUE' || ir[irIndex-1].dest !== func.name)) {
+            while(irIndex < ir.length && (ir[irIndex].op !== 'PROLOGUE' || ir[irIndex-1]?.dest !== func.name)) {
+                if (irIndex > ir.length) break; // safeguard
                 irIndex++;
             }
 
@@ -118,7 +119,13 @@ export class AssemblyGenerator {
                 this.emit(`    mov ${this.getVarOffset(arg1 as string)}(%rbp), %rax`);
                 this.emit(`    cqo`); // sign extend
                 this.emit(`    idiv ${this.getVarOffset(arg2 as string)}(%rbp)`);
-                this.emit(`    mov %rax, ${destOffset}`);
+                this.emit(`    mov %rax, ${destOffset}`); // quotient
+                break;
+            case 'MOD':
+                this.emit(`    mov ${this.getVarOffset(arg1 as string)}(%rbp), %rax`);
+                this.emit(`    cqo`); // sign extend
+                this.emit(`    idiv ${this.getVarOffset(arg2 as string)}(%rbp)`);
+                this.emit(`    mov %rdx, ${destOffset}`); // remainder
                 break;
             case 'LABEL':
                 this.emit(`${dest}:`);

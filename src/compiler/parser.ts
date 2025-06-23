@@ -30,6 +30,12 @@ export class Parser {
         return token;
     }
 
+    private consumeOptionalSemicolon() {
+        if (this.currentToken().type === TokenType.SEMICOLON) {
+            this.advance();
+        }
+    }
+
     public parse(): Program {
         const functions: FunctionNode[] = [];
         while (this.currentToken().type !== TokenType.EOF) {
@@ -39,7 +45,7 @@ export class Parser {
     }
 
     private parseFunction(): FunctionNode {
-        const returnType = this.expect(TokenType.INT).value;
+        this.expect(TokenType.FUNC);
         const name = this.expect(TokenType.IDENTIFIER).value;
         this.expect(TokenType.LPAREN);
         const params: Parameter[] = [];
@@ -52,19 +58,18 @@ export class Parser {
         }
         this.expect(TokenType.RPAREN);
         const body = this.parseBlock();
-        return { nodeType: 'Function', name, params, returnType, body };
+        return { nodeType: 'Function', name, params, body };
     }
 
     private parseParameter(): Parameter {
-        const paramType = this.expect(TokenType.INT).value;
         const name = this.expect(TokenType.IDENTIFIER).value;
-        return { nodeType: 'Parameter', name, paramType };
+        return { nodeType: 'Parameter', name };
     }
 
     private parseBlock(): Block {
         this.expect(TokenType.LBRACE);
         const statements: Statement[] = [];
-        while (this.currentToken().type !== TokenType.RBRACE) {
+        while (this.currentToken().type !== TokenType.RBRACE && this.currentToken().type !== TokenType.EOF) {
             statements.push(this.parseStatement());
         }
         this.expect(TokenType.RBRACE);
@@ -73,7 +78,7 @@ export class Parser {
 
     private parseStatement(): Statement {
         const token = this.currentToken();
-        if (token.type === TokenType.INT) return this.parseVarDeclaration();
+        if (token.type === TokenType.LET) return this.parseVarDeclaration();
         if (token.type === TokenType.RETURN) return this.parseReturnStatement();
         if (token.type === TokenType.IF) return this.parseIfStatement();
         if (token.type === TokenType.WHILE) return this.parseWhileStatement();
@@ -85,37 +90,37 @@ export class Parser {
         }
         
         const expression = this.parseExpression();
-        this.expect(TokenType.SEMICOLON);
+        this.consumeOptionalSemicolon();
         return { nodeType: 'ExpressionStatement', expression };
     }
 
     private parseVarDeclaration(): VarDeclaration {
-        const varType = this.expect(TokenType.INT).value;
+        this.expect(TokenType.LET);
         const name = this.expect(TokenType.IDENTIFIER).value;
         let initializer: Expression | undefined = undefined;
         if (this.currentToken().type === TokenType.ASSIGN) {
             this.advance();
             initializer = this.parseExpression();
         }
-        this.expect(TokenType.SEMICOLON);
-        return { nodeType: 'VarDeclaration', name, varType, initializer };
+        this.consumeOptionalSemicolon();
+        return { nodeType: 'VarDeclaration', name, initializer };
     }
 
     private parseAssignment(): Assignment {
         const name = this.expect(TokenType.IDENTIFIER).value;
         this.expect(TokenType.ASSIGN);
         const value = this.parseExpression();
-        this.expect(TokenType.SEMICOLON);
+        this.consumeOptionalSemicolon();
         return { nodeType: 'Assignment', name, value };
     }
 
     private parseReturnStatement(): ReturnStatement {
         this.expect(TokenType.RETURN);
         let value: Expression | undefined = undefined;
-        if (this.currentToken().type !== TokenType.SEMICOLON) {
+        if (this.currentToken().type !== TokenType.SEMICOLON && this.currentToken().type !== TokenType.RBRACE) {
             value = this.parseExpression();
         }
-        this.expect(TokenType.SEMICOLON);
+        this.consumeOptionalSemicolon();
         return { nodeType: 'ReturnStatement', value };
     }
 
@@ -170,7 +175,7 @@ export class Parser {
 
     private parseFactor(): Expression {
         let expr = this.parseUnary();
-        while ([TokenType.MULTIPLY, TokenType.DIVIDE].includes(this.currentToken().type)) {
+        while ([TokenType.MULTIPLY, TokenType.DIVIDE, TokenType.MODULO].includes(this.currentToken().type)) {
             const operator = this.currentToken().value;
             this.advance();
             const right = this.parseUnary();

@@ -36,8 +36,11 @@ export class IRGenerator {
             this.emit({ op: 'STORE', dest: param.name, arg1: i }); // Placeholder for param passing
         });
         this.visitBlock(node.body);
+        // Check if the last instruction is a return, if not, add one.
+        if (this.ir.length === 0 || this.ir[this.ir.length - 1].op !== 'RETURN') {
+            this.emit({ op: 'RETURN', arg1: 0 }); // Default return
+        }
         this.emit({ op: 'EPILOGUE' });
-        this.emit({ op: 'RETURN', arg1: 0 }); // Default return
     }
 
     private visitBlock(node: Block) {
@@ -140,7 +143,7 @@ export class IRGenerator {
         const destReg = this.newTemp();
         
         const opMap = {
-            '+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV',
+            '+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV', '%': 'MOD',
             '==': 'CMP_EQ', '!=': 'CMP_NE', '<': 'CMP_LT', '>': 'CMP_GT', '<=': 'CMP_LE', '>=': 'CMP_GE'
         };
 
@@ -155,7 +158,9 @@ export class IRGenerator {
         const operandReg = this.visitExpression(node.operand);
         const destReg = this.newTemp();
         if (node.operator === '-') {
-            this.emit({ op: 'SUB', dest: destReg, arg1: 0, arg2: operandReg });
+            const zeroTemp = this.newTemp();
+            this.emit({ op: 'LOAD', dest: zeroTemp, arg1: 0 });
+            this.emit({ op: 'SUB', dest: destReg, arg1: zeroTemp, arg2: operandReg });
         } else {
             // Unary plus is a no-op, just move the value
             this.emit({ op: 'LOAD', dest: destReg, arg1: operandReg });

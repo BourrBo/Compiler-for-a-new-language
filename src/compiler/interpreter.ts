@@ -70,6 +70,11 @@ export class Interpreter {
                     if (divisor === 0) throw new Error("Division by zero");
                     setValue(dest, Math.trunc(getValue(arg1) / divisor));
                     break;
+                case 'MOD':
+                    const modDivisor = getValue(arg2);
+                    if (modDivisor === 0) throw new Error("Division by zero");
+                    setValue(dest, getValue(arg1) % modDivisor);
+                    break;
                 case 'CMP_EQ': setValue(dest, getValue(arg1) === getValue(arg2) ? 1 : 0); break;
                 case 'CMP_NE': setValue(dest, getValue(arg1) !== getValue(arg2) ? 1 : 0); break;
                 case 'CMP_LT': setValue(dest, getValue(arg1) < getValue(arg2) ? 1 : 0); break;

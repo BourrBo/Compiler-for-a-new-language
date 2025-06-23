@@ -11,20 +11,23 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 import { SyntaxGuide } from "./syntax-guide";
 
-const sampleProgram = `// Computes factorial of a number
-int factorial(int n) {
-    if (n < 2) {
-        return 1;
-    } else {
-        return n * factorial(n - 1);
+const sampleProgram = `// A user-friendly language for modern compilers!
+// Keywords: func, let, return, if, else, while
+
+// Function to compute the greatest common divisor
+func gcd(a, b) {
+    while (b != 0) {
+        let temp = b
+        b = a % b
+        a = temp
     }
+    return a
 }
 
-// Main entry point
-int main() {
-    int result;
-    result = factorial(5); // Calculate factorial of 5
-    return result;
+// Main entry point of the program
+func main() {
+    let result = gcd(48, 18)
+    return result // Expected output: 6
 }
 `;
 
@@ -131,7 +134,7 @@ export function CompilerIDE() {
   return (
     <div className="flex flex-col h-screen bg-background text-foreground p-4 gap-4">
       <header className="flex items-center justify-between bg-card border rounded-lg p-3 shadow-sm">
-        <h1 className="text-xl font-bold font-headline text-primary">SimpleC Compiler IDE</h1>
+        <h1 className="text-xl font-bold font-headline text-primary">EasyScript Compiler IDE</h1>
         <Button onClick={handleCompile} disabled={isCompiling} className="bg-accent hover:bg-accent/90 text-accent-foreground">
           {isCompiling ? "Compiling..." : "Compile & Run"}
         </Button>
@@ -147,7 +150,7 @@ export function CompilerIDE() {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               className="w-full h-full font-code text-base resize-none"
-              placeholder="Write your SimpleC code here..."
+              placeholder="Write your EasyScript code here..."
             />
           </CardContent>
         </Card>
