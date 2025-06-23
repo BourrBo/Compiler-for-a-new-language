@@ -31,7 +31,7 @@ int main() {
 export function CompilerIDE() {
   const [code, setCode] = useState<string>(sampleProgram);
   const [isCompiling, setIsCompiling] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<string>("execution");
+  const [activeTab, setActiveTab] = useState<string>("syntax");
   const [compilationResult, setCompilationResult] = useState<CompilationResult | null>(null);
 
   const handleCompile = () => {
@@ -155,7 +155,7 @@ export function CompilerIDE() {
         <Card className="flex-1 flex flex-col shadow-lg">
           <CardContent className="p-4 flex-1">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-              <TabsList className="grid w-full grid-cols-8">
+              <TabsList className="grid w-full grid-cols-8" suppressHydrationWarning>
                 <TabsTrigger value="syntax">Syntax</TabsTrigger>
                 <TabsTrigger value="execution">Output</TabsTrigger>
                 <TabsTrigger value="assembly">Assembly</TabsTrigger>
