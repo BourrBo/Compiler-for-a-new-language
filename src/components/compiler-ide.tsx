@@ -9,6 +9,7 @@ import { compile } from "@/compiler";
 import type { CompilationResult } from "@/compiler";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
+import { SyntaxGuide } from "./syntax-guide";
 
 const sampleProgram = `// Computes factorial of a number
 int factorial(int n) {
@@ -154,7 +155,8 @@ export function CompilerIDE() {
         <Card className="flex-1 flex flex-col shadow-lg">
           <CardContent className="p-4 flex-1">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-              <TabsList className="grid w-full grid-cols-7">
+              <TabsList className="grid w-full grid-cols-8">
+                <TabsTrigger value="syntax">Syntax</TabsTrigger>
                 <TabsTrigger value="execution">Output</TabsTrigger>
                 <TabsTrigger value="assembly">Assembly</TabsTrigger>
                 <TabsTrigger value="tokens">Tokens</TabsTrigger>
@@ -164,6 +166,7 @@ export function CompilerIDE() {
                 <TabsTrigger value="error">Errors</TabsTrigger>
               </TabsList>
               <div className="flex-1 mt-4 overflow-hidden">
+                <TabsContent value="syntax" className="h-full"><SyntaxGuide /></TabsContent>
                 <TabsContent value="execution" className="h-full">{renderExecutionOutput(compilationResult?.executionOutput)}</TabsContent>
                 <TabsContent value="assembly" className="h-full">{renderAssembly(compilationResult?.assembly ?? '')}</TabsContent>
                 <TabsContent value="tokens" className="h-full">{renderContent(compilationResult?.tokens)}</TabsContent>
