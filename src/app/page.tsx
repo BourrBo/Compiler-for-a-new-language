@@ -1,3 +1,7 @@
+import { CompilerIDE } from "@/components/compiler-ide";
+
 export default function Home() {
-  return <></>;
+  return (
+    <CompilerIDE />
+  );
 }
